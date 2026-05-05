@@ -1,7 +1,10 @@
 package state
 
 import (
+	"strconv"
+
 	"pixelpaint/component"
+	"pixelpaint/data"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
@@ -15,6 +18,28 @@ func StateCreateSheetLoad(s *State) {
 
 	s.Storage["inputWidth"] = &inputWidthPx
 	s.Storage["inputHeight"] = &inputHeightPx
+
+	createBtn := component.Button{}
+	createBtn.New("Create", rl.NewVector2(300, 190)).
+		Bind(func() {
+			var width string
+			var height string
+			if i, ok := s.Storage["inputWidth"]; ok {
+				j := i.(*component.InputText)
+				width = j.GetValue()
+			}
+			if i, ok := s.Storage["inputHeight"]; ok {
+				j := i.(*component.InputText)
+				height = j.GetValue()
+			}
+			if w, err := strconv.Atoi(width); err == nil {
+				data.SheetWidth = w
+			}
+			if h, err := strconv.Atoi(height); err == nil {
+				data.SheetHeight = h
+			}
+		})
+	s.Storage["createBtn"] = &createBtn
 
 	s.SetIsLoaded(true)
 }
@@ -35,5 +60,9 @@ func StateCreateSheetMain(s *State) {
 	}
 	if ih, ok := s.Storage["inputHeight"]; ok {
 		ih.(*component.InputText).Render()
+	}
+
+	if btn, ok := s.Storage["createBtn"]; ok {
+		btn.(*component.Button).Render()
 	}
 }
