@@ -1,7 +1,8 @@
 package main
 
 import (
-	"pixelpaint/component"
+	"pixelpaint/data"
+	"pixelpaint/state"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
@@ -14,17 +15,14 @@ func main() {
 	rl.SetExitKey(rl.KeyNull)
 	rl.SetTargetFPS(60)
 
-	it1 := component.InputText{}
-	it1.New(300, rl.NewVector2(300, 50))
-
 	// fmt.Println(string([]byte{'A', 'B'}))
+
+	data.CurrentState = "CreateSheet"
+	state.Load()
 
 	for !rl.WindowShouldClose() {
 		rl.BeginDrawing()
-		rl.ClearBackground(rl.RayWhite)
-		rl.DrawText("Width", 100, 50, 50, rl.Black)
-		rl.DrawText("Height", 100, 120, 50, rl.Black)
-		it1.Render()
+		state.Run()
 		rl.EndDrawing()
 	}
 }
