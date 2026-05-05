@@ -1,6 +1,8 @@
 package state
 
 import (
+	"fmt"
+	"os/exec"
 	"strconv"
 
 	"pixelpaint/component"
@@ -38,7 +40,28 @@ func StateCreateSheetLoad(s *State) {
 			if h, err := strconv.Atoi(height); err == nil {
 				data.SheetHeight = h
 			}
+
+			if width == "" {
+				width = "0"
+			}
+			if height == "" {
+				height = "0"
+			}
+
+			if data.SheetHeight <= 0 || data.SheetWidth <= 0 {
+				data.SheetWidth = 0
+				data.SheetHeight = 0
+
+				cmd := exec.Command("notify-send", "cannot create canvas with", "width="+width+"\nheight="+height)
+				err := cmd.Run()
+				if err != nil {
+					fmt.Println(err.Error())
+				}
+				return
+			}
+
 			data.CurrentState = "Paint"
+			// fmt.Println(width, height, data.SheetWidth, data.SheetHeight)
 			rl.SetMouseCursor(rl.MouseCursorDefault)
 		})
 	s.Storage["createBtn"] = &createBtn
