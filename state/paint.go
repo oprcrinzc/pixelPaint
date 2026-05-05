@@ -11,13 +11,14 @@ import (
 )
 
 func StatePaintLoad(s *State) {
-	PixelPrescaler := 20
+	PixelPrescaler := 14
 	LinePrescaler := 1
 	SheetPaintWidth := data.SheetWidth*PixelPrescaler + data.SheetWidth*LinePrescaler + 1
 	SheetPaintHeight := data.SheetHeight*PixelPrescaler + data.SheetHeight*LinePrescaler + 1
 
 	sheetTexture := rl.LoadRenderTexture(int32(SheetPaintWidth), int32(SheetPaintHeight))
 	rl.SetTextureFilter(sheetTexture.Texture, rl.FilterBilinear)
+	// rl.SetTextureFilter(sheetTexture.Texture, rl.FilterPoint)
 
 	s.Storage["sheetRenderTexture"] = sheetTexture
 	s.Storage["PixelPrescaler"] = PixelPrescaler
@@ -103,6 +104,20 @@ func StatePaintMain(s *State) {
 		}
 	}
 
+	moveSpeed := 100
+	if rl.IsKeyDown(rl.KeyLeft) {
+		CanvasOrigin.X -= rl.GetFrameTime() * float32(moveSpeed)
+	}
+	if rl.IsKeyDown(rl.KeyRight) {
+		CanvasOrigin.X += rl.GetFrameTime() * float32(moveSpeed)
+	}
+	if rl.IsKeyDown(rl.KeyUp) {
+		CanvasOrigin.Y -= rl.GetFrameTime() * float32(moveSpeed)
+	}
+	if rl.IsKeyDown(rl.KeyDown) {
+		CanvasOrigin.Y += rl.GetFrameTime() * float32(moveSpeed)
+	}
+
 	var sheet rl.RenderTexture2D
 
 	if t, ok := s.Storage["sheetRenderTexture"]; ok {
@@ -117,9 +132,10 @@ func StatePaintMain(s *State) {
 	rl.DrawText("WxH:"+strconv.Itoa(data.SheetWidth)+"x"+strconv.Itoa(data.SheetHeight), 120, 10, 20, rl.Black)
 
 	// rl.DrawTexture(sheet.Texture, 130, 30, rl.White)
-	rl.DrawTextureEx(sheet.Texture, rl.NewVector2(130, 50), 0, float32(scale), rl.White)
+	rl.DrawTextureEx(sheet.Texture, CanvasOrigin, 0, float32(scale), rl.White)
 
 	rl.EndDrawing()
 
 	s.Storage["Scale"] = scale
+	s.Storage["CanvasOrigin"] = CanvasOrigin
 }
