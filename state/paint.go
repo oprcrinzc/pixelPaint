@@ -133,26 +133,32 @@ func StatePaintMain(s *State) {
 		if f, ok := s.Storage["DrawGrid"]; ok {
 			f.(func())()
 		}
+		if f, ok := s.Storage["UpdatePixel"]; ok {
+			f.(func())()
+		}
 	}
 	if (rl.IsKeyDown(rl.KeyLeftShift) || rl.IsKeyDown(rl.KeyRightShift)) && rl.IsKeyDown(rl.KeyEqual) {
 		scale += float32(rl.GetFrameTime() * 0.5)
 		if f, ok := s.Storage["DrawGrid"]; ok {
 			f.(func())()
 		}
+		if f, ok := s.Storage["UpdatePixel"]; ok {
+			f.(func())()
+		}
 	}
 
 	moveSpeed := 100
 	if rl.IsKeyDown(rl.KeyLeft) {
-		CanvasOrigin.X -= rl.GetFrameTime() * float32(moveSpeed)
-	}
-	if rl.IsKeyDown(rl.KeyRight) {
 		CanvasOrigin.X += rl.GetFrameTime() * float32(moveSpeed)
 	}
+	if rl.IsKeyDown(rl.KeyRight) {
+		CanvasOrigin.X -= rl.GetFrameTime() * float32(moveSpeed)
+	}
 	if rl.IsKeyDown(rl.KeyUp) {
-		CanvasOrigin.Y -= rl.GetFrameTime() * float32(moveSpeed)
+		CanvasOrigin.Y += rl.GetFrameTime() * float32(moveSpeed)
 	}
 	if rl.IsKeyDown(rl.KeyDown) {
-		CanvasOrigin.Y += rl.GetFrameTime() * float32(moveSpeed)
+		CanvasOrigin.Y -= rl.GetFrameTime() * float32(moveSpeed)
 	}
 
 	var sheet rl.RenderTexture2D
