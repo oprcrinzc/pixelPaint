@@ -1,6 +1,8 @@
 package state
 
 import (
+	"fmt"
+	"math"
 	"strconv"
 
 	"pixelpaint/data"
@@ -35,6 +37,8 @@ func StatePaintLoad(s *State) {
 	}
 	rl.EndTextureMode()
 
+	s.Storage["CanvasOrigin"] = rl.NewVector2(130, 50)
+
 	s.SetIsLoaded(true)
 }
 func StatePaintUnload(s *State) {}
@@ -46,10 +50,37 @@ func StatePaintMain(s *State) {
 		s.Load()
 	}
 
+	mousePos := rl.GetMousePosition()
+
+	// -------------------------------------------------------------------------
+
 	scale := float32(0)
 	if s, ok := s.Storage["Scale"]; ok {
 		scale = s.(float32)
 	}
+
+	PixelPrescaler := 0
+	if pp, ok := s.Storage["PixelPrescaler"]; ok {
+		PixelPrescaler = pp.(int)
+	}
+
+	var CanvasOrigin rl.Vector2
+	if a, ok := s.Storage["CanvasOrigin"]; ok {
+		CanvasOrigin = a.(rl.Vector2)
+	}
+
+	// ---------------------------[ Calculate X, Y in canvas ]---------------------------------------------
+
+	deltaX := mousePos.X - CanvasOrigin.X
+	deltaY := mousePos.Y - CanvasOrigin.Y
+	x := math.Floor(float64(deltaX) / (float64(PixelPrescaler+1) * float64(scale)))
+	y := math.Floor(float64(deltaY) / (float64(PixelPrescaler+1) * float64(scale)))
+
+	rl.DrawText(fmt.Sprintf("mouse X,Y: (%d,%d)", int(x), int(y)), 300, 10, 20, rl.Black)
+
+	// -------------------------------------------------------------------------
+
+	// utils.CheckIfCursorIsInArea(mousePos, CanvasOrigin, width float32, height float32)
 
 	if rl.IsKeyDown(rl.KeyMinus) {
 		scale -= float32(rl.GetFrameTime() * 1)
