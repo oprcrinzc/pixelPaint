@@ -38,6 +38,8 @@ func StateCreateSheetLoad(s *State) {
 			if h, err := strconv.Atoi(height); err == nil {
 				data.SheetHeight = h
 			}
+			data.CurrentState = "Paint"
+			rl.SetMouseCursor(rl.MouseCursorDefault)
 		})
 	s.Storage["createBtn"] = &createBtn
 
@@ -52,6 +54,7 @@ func StateCreateSheetMain(s *State) {
 	if !s.isLoaded {
 		s.Load()
 	}
+	rl.BeginDrawing()
 	rl.ClearBackground(rl.RayWhite)
 	rl.DrawText("Width", 100, 50, 50, rl.Black)
 	rl.DrawText("Height", 100, 120, 50, rl.Black)
@@ -65,4 +68,5 @@ func StateCreateSheetMain(s *State) {
 	if btn, ok := s.Storage["createBtn"]; ok {
 		btn.(*component.Button).Render()
 	}
+	rl.EndDrawing()
 }

@@ -8,8 +8,8 @@ import (
 )
 
 func main() {
-	rl.SetConfigFlags(rl.FlagWindowResizable)
-	rl.InitWindow(600, 500, "Pixel Paint")
+	rl.SetConfigFlags(rl.FlagWindowUndecorated)
+	rl.InitWindow(data.WIDTH, data.HEIGHT, "Pixel Paint")
 	defer rl.CloseWindow()
 
 	rl.SetExitKey(rl.KeyNull)
@@ -21,8 +21,6 @@ func main() {
 	state.Load()
 
 	for !rl.WindowShouldClose() {
-		rl.BeginDrawing()
 		state.Run()
-		rl.EndDrawing()
 	}
 }

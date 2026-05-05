@@ -59,7 +59,10 @@ func (s *State) UnLoad() {
 
 var StateList map[string]*State = make(map[string]*State)
 
-var StateCreateSheet *State = new(State)
+var (
+	StateCreateSheet *State = new(State)
+	StatePaint       *State = new(State)
+)
 
 // -------------------------------------------------------------------------
 
@@ -69,6 +72,12 @@ func Load() {
 		SetMainFunc(StateCreateSheetMain).
 		SetUnloadFunc(StateCreateSheetUnLoad)
 	StateList[StateCreateSheet.Name] = StateCreateSheet
+
+	StatePaint.New("Paint").
+		SetLoadFunc(StatePaintLoad).
+		SetMainFunc(StatePaintMain).
+		SetUnloadFunc(StatePaintUnload)
+	StateList[StatePaint.Name] = StatePaint
 }
 
 func Run() {

@@ -3,6 +3,11 @@ package data
 
 import "image/color"
 
+const (
+	WIDTH  int32 = 1200
+	HEIGHT int32 = 800
+)
+
 var (
 	CurrentState string
 	Sheet        map[int]map[int]color.RGBA = make(map[int]map[int]color.RGBA)
