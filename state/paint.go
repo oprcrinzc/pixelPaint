@@ -2,6 +2,7 @@ package state
 
 import (
 	"fmt"
+	"image/color"
 	"math"
 	"strconv"
 
@@ -18,7 +19,7 @@ func StatePaintLoad(s *State) {
 
 	sheetTexture := rl.LoadRenderTexture(int32(SheetPaintWidth), int32(SheetPaintHeight))
 	rl.SetTextureFilter(sheetTexture.Texture, rl.FilterBilinear)
-	// rl.SetTextureFilter(sheetTexture.Texture, rl.FilterPoint)
+	rl.SetTextureFilter(sheetTexture.Texture, rl.FilterPoint)
 
 	s.Storage["sheetRenderTexture"] = sheetTexture
 	s.Storage["PixelPrescaler"] = PixelPrescaler
@@ -42,11 +43,36 @@ func StatePaintLoad(s *State) {
 		rl.EndTextureMode()
 	}
 
+	updatePixel := func() {
+		rl.BeginTextureMode(sheetTexture)
+		py := 0
+		px := 0
+		for i := range sheetTexture.Texture.Height {
+			if i%int32(PixelPrescaler+1) == 1 {
+				px = 0
+				for j := range sheetTexture.Texture.Width {
+					if j%int32(PixelPrescaler+1) == 1 {
+						if col, ok := data.Sheet[int(py)][int(px)]; ok {
+							rl.DrawRectangle(j, i, int32(PixelPrescaler), int32(PixelPrescaler), col)
+						}
+						px += 1
+					}
+				}
+				py += 1
+			}
+		}
+		fmt.Println("px, py:", px, py)
+
+		rl.EndTextureMode()
+	}
+
 	drawGridFunc()
+	updatePixel()
 
 	s.Storage["DrawGrid"] = drawGridFunc
+	s.Storage["UpdatePixel"] = updatePixel
 
-	s.Storage["CanvasOrigin"] = rl.NewVector2(130, 50)
+	s.Storage["CanvasOrigin"] = rl.NewVector2(-130, -50)
 
 	s.SetIsLoaded(true)
 }
@@ -80,14 +106,25 @@ func StatePaintMain(s *State) {
 
 	// ---------------------------[ Calculate X, Y in canvas ]---------------------------------------------
 
-	deltaX := mousePos.X - CanvasOrigin.X
-	deltaY := mousePos.Y - CanvasOrigin.Y
+	deltaX := mousePos.X - CanvasOrigin.X*(-1)
+	deltaY := mousePos.Y - CanvasOrigin.Y*(-1)
 	x := math.Floor(float64(deltaX) / (float64(PixelPrescaler+1) * float64(scale)))
 	y := math.Floor(float64(deltaY) / (float64(PixelPrescaler+1) * float64(scale)))
 
 	rl.DrawText(fmt.Sprintf("mouse X,Y: (%d,%d), scale: %f", int(x), int(y), scale), 300, 10, 20, rl.Black)
 
 	// -------------------------------------------------------------------------
+
+	if rl.IsMouseButtonDown(rl.MouseLeftButton) {
+		if x >= 0 && y >= 0 && x < float64(data.SheetWidth) && y < float64(data.SheetHeight) {
+			data.Sheet[int(y)][int(x)] = color.RGBA{0, 0, 0, 255}
+
+			fmt.Println(data.Sheet)
+			if f, ok := s.Storage["UpdatePixel"]; ok {
+				f.(func())()
+			}
+		}
+	}
 
 	// utils.CheckIfCursorIsInArea(mousePos, CanvasOrigin, width float32, height float32)
 
@@ -126,13 +163,22 @@ func StatePaintMain(s *State) {
 
 	rl.BeginDrawing()
 
-	rl.ClearBackground(rl.RayWhite)
+	rl.ClearBackground(rl.Green)
 
 	rl.DrawRectangle(0, 0, 100, data.HEIGHT, rl.DarkPurple)
 	rl.DrawText("WxH:"+strconv.Itoa(data.SheetWidth)+"x"+strconv.Itoa(data.SheetHeight), 120, 10, 20, rl.Black)
 
 	// rl.DrawTexture(sheet.Texture, 130, 30, rl.White)
-	rl.DrawTextureEx(sheet.Texture, CanvasOrigin, 0, float32(scale), rl.White)
+	//	rl.DrawTextureEx(sheet.Texture, CanvasOrigin, 0, float32(scale), rl.White)
+
+	rl.DrawTexturePro(sheet.Texture,
+		rl.NewRectangle(0, 0, float32(sheet.Texture.Width), -float32(sheet.Texture.Height)),
+		rl.NewRectangle(0, 0, float32(sheet.Texture.Width)*scale, float32(sheet.Texture.Height)*scale),
+		CanvasOrigin,
+		0,
+		rl.White)
+
+	rl.DrawText(fmt.Sprintf("Origin: %v", CanvasOrigin), 120, 40, 20, rl.Black)
 
 	rl.EndDrawing()
 

@@ -4,8 +4,8 @@ package data
 import "image/color"
 
 const (
-	WIDTH  int32 = 1920
-	HEIGHT int32 = 1080
+	WIDTH  int32 = 1280
+	HEIGHT int32 = 720
 )
 
 var (

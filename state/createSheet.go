@@ -2,6 +2,7 @@ package state
 
 import (
 	"fmt"
+	"image/color"
 	"os/exec"
 	"strconv"
 
@@ -59,6 +60,15 @@ func StateCreateSheetLoad(s *State) {
 				}
 				return
 			}
+			data.Sheet = make(map[int]map[int]color.RGBA, data.SheetHeight)
+			for i := range data.SheetHeight {
+				data.Sheet[i] = make(map[int]color.RGBA, data.SheetWidth)
+				for j := range data.SheetWidth {
+					data.Sheet[i][j] = color.RGBA{255, 255, 255, 255}
+				}
+			}
+
+			fmt.Println(data.Sheet)
 
 			data.CurrentState = "Paint"
 			// fmt.Println(width, height, data.SheetWidth, data.SheetHeight)

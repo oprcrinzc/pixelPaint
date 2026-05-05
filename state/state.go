@@ -19,7 +19,7 @@ type State struct {
 func (s *State) New(name string) *State {
 	s.isLoaded = false
 	s.Name = name
-	s.Storage = make(map[string]any)
+	s.Storage = make(map[string]any, 65536)
 	return s
 }
 
