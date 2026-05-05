@@ -17,6 +17,7 @@ func StatePaintLoad(s *State) {
 	SheetPaintHeight := data.SheetHeight*PixelPrescaler + data.SheetHeight*LinePrescaler + 1
 
 	sheetTexture := rl.LoadRenderTexture(int32(SheetPaintWidth), int32(SheetPaintHeight))
+	rl.SetTextureFilter(sheetTexture.Texture, rl.FilterBilinear)
 
 	s.Storage["sheetRenderTexture"] = sheetTexture
 	s.Storage["PixelPrescaler"] = PixelPrescaler
@@ -24,18 +25,25 @@ func StatePaintLoad(s *State) {
 
 	s.Storage["Scale"] = float32(1)
 
-	rl.BeginTextureMode(sheetTexture)
-	for i := range sheetTexture.Texture.Width {
-		if i%int32(PixelPrescaler+1) == 0 {
-			rl.DrawLine(i, 0, i+1, sheetTexture.Texture.Height, rl.Black)
+	drawGridFunc := func() {
+		rl.BeginTextureMode(sheetTexture)
+		rl.ClearBackground(rl.White)
+		for i := range sheetTexture.Texture.Width {
+			if i%int32(PixelPrescaler+1) == 0 {
+				rl.DrawLine(i, 0, i+1, sheetTexture.Texture.Height, rl.Black)
+			}
 		}
-	}
-	for i := range sheetTexture.Texture.Height {
-		if i%int32(PixelPrescaler+1) == 0 {
-			rl.DrawLine(0, i, sheetTexture.Texture.Width, i+1, rl.Black)
+		for i := range sheetTexture.Texture.Height {
+			if i%int32(PixelPrescaler+1) == 0 {
+				rl.DrawLine(0, i, sheetTexture.Texture.Width, i+1, rl.Black)
+			}
 		}
+		rl.EndTextureMode()
 	}
-	rl.EndTextureMode()
+
+	drawGridFunc()
+
+	s.Storage["DrawGrid"] = drawGridFunc
 
 	s.Storage["CanvasOrigin"] = rl.NewVector2(130, 50)
 
@@ -76,17 +84,23 @@ func StatePaintMain(s *State) {
 	x := math.Floor(float64(deltaX) / (float64(PixelPrescaler+1) * float64(scale)))
 	y := math.Floor(float64(deltaY) / (float64(PixelPrescaler+1) * float64(scale)))
 
-	rl.DrawText(fmt.Sprintf("mouse X,Y: (%d,%d)", int(x), int(y)), 300, 10, 20, rl.Black)
+	rl.DrawText(fmt.Sprintf("mouse X,Y: (%d,%d), scale: %f", int(x), int(y), scale), 300, 10, 20, rl.Black)
 
 	// -------------------------------------------------------------------------
 
 	// utils.CheckIfCursorIsInArea(mousePos, CanvasOrigin, width float32, height float32)
 
 	if rl.IsKeyDown(rl.KeyMinus) {
-		scale -= float32(rl.GetFrameTime() * 1)
+		scale -= float32(rl.GetFrameTime() * 0.5)
+		if f, ok := s.Storage["DrawGrid"]; ok {
+			f.(func())()
+		}
 	}
 	if (rl.IsKeyDown(rl.KeyLeftShift) || rl.IsKeyDown(rl.KeyRightShift)) && rl.IsKeyDown(rl.KeyEqual) {
-		scale += float32(rl.GetFrameTime() * 1)
+		scale += float32(rl.GetFrameTime() * 0.5)
+		if f, ok := s.Storage["DrawGrid"]; ok {
+			f.(func())()
+		}
 	}
 
 	var sheet rl.RenderTexture2D
