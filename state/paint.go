@@ -8,6 +8,7 @@ import (
 
 	"pixelpaint/component"
 	"pixelpaint/data"
+	"pixelpaint/utils"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
@@ -99,6 +100,18 @@ func StatePaintLoad(s *State) {
 		})
 	s.Storage["EraseModeBtn"] = eraseModeBtn
 
+	exportImg := rl.LoadTexture("./krita/export/export.png")
+	s.Storage["ExportImg"] = exportImg
+	exportBtn := component.Button{}
+	exportBtn.New(rl.NewVector2(20, 300)).
+		SetMode(component.ButtonModeImg).
+		SetImg(exportImg).
+		Bind(func() {
+			s.Storage["CurrentMode"] = "none"
+			utils.ExportToBmp()
+		})
+	s.Storage["ExportBtn"] = exportBtn
+
 	s.SetIsLoaded(true)
 }
 
@@ -108,6 +121,10 @@ func StatePaintUnload(s *State) {
 		rl.UnloadTexture(ii)
 	}
 	if i, ok := s.Storage["EraseModeImg"]; ok {
+		ii := i.(rl.Texture2D)
+		rl.UnloadTexture(ii)
+	}
+	if i, ok := s.Storage["ExportImg"]; ok {
 		ii := i.(rl.Texture2D)
 		rl.UnloadTexture(ii)
 	}
@@ -123,7 +140,7 @@ func StatePaintMain(s *State) {
 	// -------------------------------------------------------------------------
 
 	mousePos := rl.GetMousePosition()
-	screenWidth := rl.GetScreenWidth()
+	// screenWidth := rl.GetScreenWidth()
 	screenHeight := rl.GetScreenHeight()
 
 	// -------------------------------------------------------------------------
@@ -222,7 +239,7 @@ func StatePaintMain(s *State) {
 	// ----------------------------Draw tools bar-------------------------------------------
 
 	rl.DrawRectangle(0, 0, 100, int32(screenHeight), rl.DarkPurple)
-	fmt.Println(screenWidth)
+	// fmt.Println(screenWidth)
 
 	if d, ok := s.Storage["DrawModeBtn"]; ok {
 		dbtn := d.(component.Button)
@@ -230,6 +247,11 @@ func StatePaintMain(s *State) {
 	}
 
 	if d, ok := s.Storage["EraseModeBtn"]; ok {
+		dbtn := d.(component.Button)
+		dbtn.Render()
+	}
+
+	if d, ok := s.Storage["ExportBtn"]; ok {
 		dbtn := d.(component.Button)
 		dbtn.Render()
 	}
