@@ -6,6 +6,7 @@ import (
 	"math"
 	"strconv"
 
+	"pixelpaint/component"
 	"pixelpaint/data"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
@@ -61,7 +62,7 @@ func StatePaintLoad(s *State) {
 				py += 1
 			}
 		}
-		fmt.Println("px, py:", px, py)
+		// fmt.Println("px, py:", px, py)
 
 		rl.EndTextureMode()
 	}
@@ -74,9 +75,43 @@ func StatePaintLoad(s *State) {
 
 	s.Storage["CanvasOrigin"] = rl.NewVector2(-130, -50)
 
+	s.Storage["CurrentMode"] = "draw"
+
+	drawModeImg := rl.LoadTexture("./krita/export/drawModeImg.png")
+	s.Storage["DrawModeImg"] = drawModeImg
+	drawModeBtn := component.Button{}
+	drawModeBtn.New(rl.NewVector2(20, 100)).
+		SetMode(component.ButtonModeImg).
+		SetImg(drawModeImg).
+		Bind(func() {
+			s.Storage["CurrentMode"] = "draw"
+		})
+	s.Storage["DrawModeBtn"] = drawModeBtn
+
+	eraseModeImg := rl.LoadTexture("./krita/export/eraseModeImg.png")
+	s.Storage["EraseModeImg"] = eraseModeImg
+	eraseModeBtn := component.Button{}
+	eraseModeBtn.New(rl.NewVector2(20, 200)).
+		SetMode(component.ButtonModeImg).
+		SetImg(eraseModeImg).
+		Bind(func() {
+			s.Storage["CurrentMode"] = "erase"
+		})
+	s.Storage["EraseModeBtn"] = eraseModeBtn
+
 	s.SetIsLoaded(true)
 }
-func StatePaintUnload(s *State) {}
+
+func StatePaintUnload(s *State) {
+	if i, ok := s.Storage["DrawModeImg"]; ok {
+		ii := i.(rl.Texture2D)
+		rl.UnloadTexture(ii)
+	}
+	if i, ok := s.Storage["EraseModeImg"]; ok {
+		ii := i.(rl.Texture2D)
+		rl.UnloadTexture(ii)
+	}
+}
 
 // -------------------------------------------------------------------------
 
@@ -85,7 +120,11 @@ func StatePaintMain(s *State) {
 		s.Load()
 	}
 
+	// -------------------------------------------------------------------------
+
 	mousePos := rl.GetMousePosition()
+	screenWidth := rl.GetScreenWidth()
+	screenHeight := rl.GetScreenHeight()
 
 	// -------------------------------------------------------------------------
 
@@ -117,9 +156,19 @@ func StatePaintMain(s *State) {
 
 	if rl.IsMouseButtonDown(rl.MouseLeftButton) {
 		if x >= 0 && y >= 0 && x < float64(data.SheetWidth) && y < float64(data.SheetHeight) {
-			data.Sheet[int(y)][int(x)] = color.RGBA{0, 0, 0, 255}
+			c := color.RGBA{0, 0, 0, 255}
+			if currentMode_, ok := s.Storage["CurrentMode"]; ok {
+				currentMode := currentMode_.(string)
+				switch currentMode {
+				case "draw":
+					c = color.RGBA{0, 0, 0, 255}
+				case "erase":
+					c = color.RGBA{255, 255, 255, 255}
+				}
+			}
 
-			fmt.Println(data.Sheet)
+			data.Sheet[int(y)][int(x)] = c
+			// fmt.Println(data.Sheet)
 			if f, ok := s.Storage["UpdatePixel"]; ok {
 				f.(func())()
 			}
@@ -168,10 +217,25 @@ func StatePaintMain(s *State) {
 	}
 
 	rl.BeginDrawing()
+	rl.ClearBackground(rl.RayWhite)
 
-	rl.ClearBackground(rl.Green)
+	// ----------------------------Draw tools bar-------------------------------------------
 
-	rl.DrawRectangle(0, 0, 100, data.HEIGHT, rl.DarkPurple)
+	rl.DrawRectangle(0, 0, 100, int32(screenHeight), rl.DarkPurple)
+	fmt.Println(screenWidth)
+
+	if d, ok := s.Storage["DrawModeBtn"]; ok {
+		dbtn := d.(component.Button)
+		dbtn.Render()
+	}
+
+	if d, ok := s.Storage["EraseModeBtn"]; ok {
+		dbtn := d.(component.Button)
+		dbtn.Render()
+	}
+
+	// -------------------------------------------------------------------------
+
 	rl.DrawText("WxH:"+strconv.Itoa(data.SheetWidth)+"x"+strconv.Itoa(data.SheetHeight), 120, 10, 20, rl.Black)
 
 	// rl.DrawTexture(sheet.Texture, 130, 30, rl.White)

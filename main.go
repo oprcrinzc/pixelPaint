@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	rl.SetConfigFlags(rl.FlagWindowUndecorated)
+	rl.SetConfigFlags(rl.FlagWindowUndecorated | rl.FlagWindowResizable)
 	rl.InitWindow(data.WIDTH, data.HEIGHT, "Pixel Paint")
 	defer rl.CloseWindow()
 

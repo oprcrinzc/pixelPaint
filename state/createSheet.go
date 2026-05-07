@@ -23,7 +23,8 @@ func StateCreateSheetLoad(s *State) {
 	s.Storage["inputHeight"] = &inputHeightPx
 
 	createBtn := component.Button{}
-	createBtn.New("Create", rl.NewVector2(300, 190)).
+	createBtn.New(rl.NewVector2(300, 190)).
+		SetText("Create").
 		Bind(func() {
 			var width string
 			var height string
@@ -68,7 +69,7 @@ func StateCreateSheetLoad(s *State) {
 				}
 			}
 
-			fmt.Println(data.Sheet)
+			//	fmt.Println(data.Sheet)
 
 			data.CurrentState = "Paint"
 			// fmt.Println(width, height, data.SheetWidth, data.SheetHeight)
