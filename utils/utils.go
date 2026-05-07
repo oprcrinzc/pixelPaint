@@ -21,7 +21,7 @@ func ExportToBmp() {
 	img := image.NewRGBA(image.Rect(0, 0, data.SheetWidth, data.SheetWidth))
 	for i := range data.SheetHeight {
 		for j := range data.SheetWidth {
-			img.Set(i, j, data.Sheet[i][j])
+			img.Set(j, i, data.Sheet[i][j])
 		}
 	}
 
