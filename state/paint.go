@@ -83,6 +83,7 @@ func StatePaintLoad(s *State) {
 	canvasOriginY := float32(int(screenHeight)/2 - int(sheetTexture.Texture.Height)/2)
 
 	s.Storage["CanvasOrigin"] = rl.NewVector2(-canvasOriginX, -canvasOriginY)
+	s.Storage["CanvasOriginDefault"] = rl.NewVector2(-canvasOriginX, -canvasOriginY)
 
 	// -------------------------------------------------------------------------
 
@@ -189,6 +190,16 @@ func StatePaintMain(s *State) {
 		CanvasOrigin = a.(rl.Vector2)
 	}
 
+	var CanvasOriginDefault rl.Vector2
+	if a, ok := s.Storage["CanvasOriginDefault"]; ok {
+		CanvasOriginDefault = a.(rl.Vector2)
+	}
+
+	var sheet rl.RenderTexture2D
+	if t, ok := s.Storage["sheetRenderTexture"]; ok {
+		sheet = t.(rl.RenderTexture2D)
+	}
+
 	// ---------------------------[ Calculate X, Y in canvas ]---------------------------------------------
 
 	deltaX := mousePos.X - CanvasOrigin.X*(-1)
@@ -231,6 +242,8 @@ func StatePaintMain(s *State) {
 
 	if rl.IsKeyDown(rl.KeyMinus) {
 		scale -= float32(rl.GetFrameTime() * 0.5)
+		CanvasOrigin.X = CanvasOriginDefault.X + float32(float32(sheet.Texture.Width)*scale-float32(sheet.Texture.Width))/2
+		CanvasOrigin.Y = CanvasOriginDefault.Y + float32(float32(sheet.Texture.Height)*scale-float32(sheet.Texture.Height))/2
 		if f, ok := s.Storage["DrawGrid"]; ok {
 			f.(func())()
 		}
@@ -240,6 +253,8 @@ func StatePaintMain(s *State) {
 	}
 	if (rl.IsKeyDown(rl.KeyLeftShift) || rl.IsKeyDown(rl.KeyRightShift)) && rl.IsKeyDown(rl.KeyEqual) {
 		scale += float32(rl.GetFrameTime() * 0.5)
+		CanvasOrigin.X = CanvasOriginDefault.X + float32(float32(sheet.Texture.Width)*scale-float32(sheet.Texture.Width))/2
+		CanvasOrigin.Y = CanvasOriginDefault.Y + float32(float32(sheet.Texture.Height)*scale-float32(sheet.Texture.Height))/2
 		if f, ok := s.Storage["DrawGrid"]; ok {
 			f.(func())()
 		}
@@ -260,12 +275,6 @@ func StatePaintMain(s *State) {
 	}
 	if rl.IsKeyDown(rl.KeyDown) {
 		CanvasOrigin.Y -= rl.GetFrameTime() * float32(moveSpeed)
-	}
-
-	var sheet rl.RenderTexture2D
-
-	if t, ok := s.Storage["sheetRenderTexture"]; ok {
-		sheet = t.(rl.RenderTexture2D)
 	}
 
 	rl.BeginDrawing()
