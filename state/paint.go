@@ -122,6 +122,25 @@ func StatePaintLoad(s *State) {
 		})
 	s.Storage["ExportBtn"] = exportBtn
 
+	// -----------------------------Test ColorSheer------------------------------------------
+
+	cs := component.ColorSheet{}
+	cs.New(256, 256).Bind(func(c *component.ColorSheet) {
+		Bs := uint8(0)
+
+		if bs, ok := s.Storage["TEST_COLORSHEET_B_INPUT"]; ok {
+			Bs = bs.(uint8)
+		}
+		for i := range c.Height {
+			for j := range c.Width {
+				c.Set(i, j, color.RGBA{uint8(i), uint8(j), uint8(Bs), 255})
+			}
+		}
+	})
+	s.Storage["TEST_COLORSHEET_TEXTURE"] = cs.Render()
+	s.Storage["TEST_COLORSHEET_RENDER_FUNC"] = cs.Render
+
+	// -------------------------------------------------------------------------
 	s.SetIsLoaded(true)
 }
 
@@ -199,6 +218,12 @@ func StatePaintMain(s *State) {
 			if f, ok := s.Storage["UpdatePixel"]; ok {
 				f.(func())()
 			}
+		}
+	}
+
+	if rl.IsKeyPressed(rl.KeyTab) {
+		if f, ok := s.Storage["TEST_COLORSHEET_RENDER_FUNC"]; ok {
+			s.Storage["TEST_COLORSHEET_TEXTURE"] = f.(func() rl.Texture2D)()
 		}
 	}
 
@@ -282,8 +307,15 @@ func StatePaintMain(s *State) {
 
 	rl.DrawText(fmt.Sprintf("Origin: %v", CanvasOrigin), 120, 40, 20, rl.Black)
 
+	if c, ok := s.Storage["TEST_COLORSHEET_TEXTURE"]; ok {
+		cst := c.(rl.Texture2D)
+		rl.DrawTexture(cst, 90, 90, rl.White)
+	}
+
 	rl.EndDrawing()
 
 	s.Storage["Scale"] = scale
 	s.Storage["CanvasOrigin"] = CanvasOrigin
+
+	s.Storage["TEST_COLORSHEET_B_INPUT"] = uint8(y)
 }
