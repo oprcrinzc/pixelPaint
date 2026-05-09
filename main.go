@@ -13,7 +13,7 @@ func main() {
 	defer rl.CloseWindow()
 
 	rl.SetExitKey(rl.KeyNull)
-	rl.SetTargetFPS(60)
+	rl.SetTargetFPS(144)
 
 	// fmt.Println(string([]byte{'A', 'B'}))
 
@@ -22,5 +22,6 @@ func main() {
 
 	for !rl.WindowShouldClose() {
 		state.Run()
+		rl.DrawFPS(500, 30)
 	}
 }

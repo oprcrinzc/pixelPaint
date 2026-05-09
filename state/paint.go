@@ -74,7 +74,17 @@ func StatePaintLoad(s *State) {
 	s.Storage["DrawGrid"] = drawGridFunc
 	s.Storage["UpdatePixel"] = updatePixel
 
-	s.Storage["CanvasOrigin"] = rl.NewVector2(-130, -50)
+	// ---------------------------Center Canvas ---------------------------------------------
+
+	screenHeight := rl.GetScreenHeight()
+	screenWidth := rl.GetScreenWidth()
+
+	canvasOriginX := float32(int(screenWidth)/2 - int(sheetTexture.Texture.Width)/2)
+	canvasOriginY := float32(int(screenHeight)/2 - int(sheetTexture.Texture.Height)/2)
+
+	s.Storage["CanvasOrigin"] = rl.NewVector2(-canvasOriginX, -canvasOriginY)
+
+	// -------------------------------------------------------------------------
 
 	s.Storage["CurrentMode"] = "draw"
 
