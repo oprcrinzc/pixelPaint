@@ -3,6 +3,8 @@ package component
 import (
 	"image/color"
 
+	"pixelpaint/data"
+
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
@@ -77,7 +79,7 @@ func (b *Button) Render() {
 
 	if (mousePos.X >= b.origin.X && mousePos.X <= b.origin.X+float32(b.width)) &&
 		(mousePos.Y >= b.origin.Y && mousePos.Y <= b.origin.Y+float32(b.height)) {
-		rl.SetMouseCursor(rl.MouseCursorPointingHand)
+		data.Hovers += 1
 		switch b.mode {
 		case ButtonModeText:
 			rl.DrawRectangle(int32(b.origin.X), int32(b.origin.Y), b.width, b.height, b.hoverColor)
@@ -93,7 +95,7 @@ func (b *Button) Render() {
 		}
 
 	} else {
-		rl.SetMouseCursor(rl.MouseCursorDefault)
+		// rl.SetMouseCursor(rl.MouseCursorDefault)
 		switch b.mode {
 		case ButtonModeText:
 			rl.DrawRectangle(int32(b.origin.X), int32(b.origin.Y), b.width, b.height, b.color)

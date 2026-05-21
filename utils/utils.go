@@ -36,3 +36,12 @@ func ExportToBmp() {
 		fmt.Println("export Fail:", err.Error())
 	}
 }
+
+func CheckCursorHover() {
+	if data.Hovers > 0 {
+		rl.SetMouseCursor(rl.MouseCursorPointingHand)
+	} else {
+		rl.SetMouseCursor(rl.MouseCursorDefault)
+	}
+	data.Hovers = 0
+}

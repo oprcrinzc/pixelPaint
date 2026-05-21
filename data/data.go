@@ -14,4 +14,7 @@ var (
 
 	SheetWidth  int = 0
 	SheetHeight int = 0
+
+	// IsHover bool = false
+	Hovers uint = 0
 )

@@ -3,6 +3,7 @@ package main
 import (
 	"pixelpaint/data"
 	"pixelpaint/state"
+	"pixelpaint/utils"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
@@ -22,6 +23,7 @@ func main() {
 	state.Load()
 
 	for !rl.WindowShouldClose() {
+		utils.CheckCursorHover()
 		state.Run()
 		rl.DrawFPS(500, 30)
 	}
